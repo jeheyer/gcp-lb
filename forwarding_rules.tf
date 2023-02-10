@@ -2,9 +2,9 @@ locals {
   ports     = !local.is_http && length(coalesce(var.ports, [])) > 0 ? var.ports : null
   all_ports = var.all_ports && local.ports == null && var.port_range == null ? true : false
   service_id = local.is_global && !local.is_http ? try(coalesce(
-    lookup(google_compute_backend_service.default, var.default_backend, null),
+    lookup(google_compute_backend_service.default, coalesce(var.default_backend, var.name_prefix), null),
     ).id, null) : local.is_regional ? try(coalesce(
-    lookup(google_compute_region_backend_service.default, var.default_backend, null)
+    lookup(google_compute_region_backend_service.default, coalesce(var.default_backend, keys(var.backends)[0]), null)
   ).id, null) : null
   target_id = local.type == "TCP" || local.type == "SSL" ? try(coalesce(
     local.is_global ? one(google_compute_target_tcp_proxy.default) : null

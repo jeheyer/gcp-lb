@@ -1,5 +1,5 @@
 locals {
-  name_prefix    = coalesce(var.name_prefix, one(random_string.name_prefix).result)
+  name_prefix    = var.name_prefix != null ? var.name_prefix : random_string.name_prefix[0].result
   is_global      = var.region == null ? true : false
   is_regional    = local.is_global ? false : true
   is_classic     = local.is_global && var.classic == true ? true : false
