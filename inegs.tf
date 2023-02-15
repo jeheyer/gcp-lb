@@ -1,11 +1,10 @@
 locals {
+  https_port = 443
   # From backends, create a list of objects containing only Internet Network Endpoint Groups
   inegs = { for k, v in var.backends : k => [{
-    #type       = "ineg"
     fqdn       = v.ineg.fqdn
     ip_address = v.ineg.ip_address
-    port       = coalesce(v.port, 443) # default to HTTPS since this is going via Internet
-    #} if try(coalesce(v.fqdn, v.ip_address), null) != null }
+    port       = coalesce(v.port, local.https_port) # default to HTTPS since this is going via Internet
   }] if v.ineg != null }
 }
 
@@ -15,7 +14,7 @@ resource "google_compute_global_network_endpoint_group" "default" {
   project               = var.project_id
   name                  = "${each.key}-${one(each.value).port}"
   network_endpoint_type = one(each.value).fqdn != null ? "INTERNET_FQDN_PORT" : "INTERNET_IP_PORT"
-  default_port          = 443
+  default_port          = local.https_port
 }
 
 # Internet Network Endpoints

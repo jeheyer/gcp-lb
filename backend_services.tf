@@ -31,12 +31,12 @@ locals {
     max_utilization       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_utilization, 0.8) : null
     max_rate_per_instance = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_rate_per_instance, 512) : null
   } if lookup(local.backend_buckets, k, null) == null && v.bucket_name == null && v.type != "bucket" }
-  backend_options = { for k, v in var.backends : k => {
-    capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.capacity_scaler, 1.0) : null
-    max_connections       = local.is_global && local.type == "TCP" ? coalesce(v.max_connections, 32768) : null
-    max_utilization       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_utilization, 0.8) : null
-    max_rate_per_instance = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_rate_per_instance, 512) : null
-  } if lookup(local.backend_buckets, k, null) == null }
+  #backend_options = { for k, v in var.backends : k => {
+  #  capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.capacity_scaler, 1.0) : null
+  #  max_connections       = local.is_global && local.type == "TCP" ? coalesce(v.max_connections, 32768) : null
+  #  max_utilization       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_utilization, 0.8) : null
+  #  max_rate_per_instance = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_rate_per_instance, 512) : null
+  #} if lookup(local.backend_buckets, k, null) == null }
 }
 
 # Global Backend Service
@@ -55,7 +55,7 @@ resource "google_compute_backend_service" "default" {
     for_each = each.value.groups
     content {
       group                 = backend.value
-      capacity_scaler       = local.backend_options[each.key].capacity_scaler
+      capacity_scaler       = local.backend_services[each.key].capacity_scaler
       balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
       max_rate_per_instance = each.value.type == "instance_groups" ? local.backend_services[each.key].max_rate_per_instance : null
       max_utilization       = each.value.type == "instance_groups" ? local.backend_services[each.key].max_utilization : null
@@ -88,7 +88,7 @@ resource "google_compute_region_backend_service" "default" {
     for_each = each.value.groups
     content {
       group                 = backend.value
-      capacity_scaler       = local.backend_options[each.key].capacity_scaler
+      capacity_scaler       = local.backend_services[each.key].capacity_scaler
       balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
       max_rate_per_instance = each.value.type == "instance_groups" ? local.backend_services[each.key].max_rate_per_instance : null
       max_utilization       = each.value.type == "instance_groups" ? local.backend_services[each.key].max_utilization : null

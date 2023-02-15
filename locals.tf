@@ -9,12 +9,12 @@ locals {
   is_internal    = var.subnet_name != null ? true : false
   lb_scheme      = local.is_http ? local.http_lb_scheme : (local.is_internal ? "INTERNAL" : "EXTERNAL")
   http_lb_scheme = local.is_internal ? "INTERNAL_MANAGED" : (local.is_classic ? "EXTERNAL" : "EXTERNAL_MANAGED")
-  region         = coalesce(var.region, "us-central1") # Need a region for SNEGs even if backend is global
+  region         = coalesce(var.region, "us-central1") # Need a region for SNEGs, even if backend is global
 }
 
 resource "random_string" "name_prefix" {
   count   = var.name_prefix == null ? 1 : 0
-  length  = 5
+  length  = 8
   upper   = false
   special = false
   numeric = false

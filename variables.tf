@@ -215,11 +215,12 @@ variable "backends" {
       zone = optional(string)
     })))
     snegs = optional(list(object({
-      region          = optional(string)
-      cloud_run_name  = optional(string) # Cloud run service name
-      container_image = optional(string) # Default to GCR if not full URL
-      docker_image    = optional(string) # Pulls image from docker.io
-      container_port  = optional(number) # Cloud run container port
+      region                = optional(string)
+      cloud_run_name        = optional(string) # Cloud run service name
+      container_image       = optional(string) # Default to GCR if not full URL
+      docker_image          = optional(string) # Pulls image from docker.io
+      container_port        = optional(number) # Cloud run container port
+      allow_unauthenticated = optional(bool)
     })))
     ineg = optional(object({
       fqdn       = optional(string)

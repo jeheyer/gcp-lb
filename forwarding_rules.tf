@@ -10,7 +10,7 @@ locals {
     local.is_global ? one(google_compute_target_tcp_proxy.default) : null
   ).id, null) : null
   global_fwd_rules = local.is_http ? { for i, v in local.ip_versions : i => { ip_version = lower(v) } } : {
-    for i, v in setproduct(local.ip_versions, coalesce(local.ports, [])) : i => {
+    for i, v in setproduct(local.ip_versions, coalescelist(local.ports, [])) : i => {
       ip_version = lower(v[0])
       port       = tostring(v[1])
     } if !local.all_ports
