@@ -15,7 +15,7 @@ locals {
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
     protocol        = lookup(local.snegs, k, null) != null ? null : local.type
     timeout         = lookup(local.snegs, k, null) != null ? null : coalesce(v.timeout, var.backend_timeout, 30)
-    healthcheck_ids = [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))]
+    healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
     groups = coalesce(
       lookup(local.instance_groups, k, null) != null ? local.instance_groups[k].ids : null,
       lookup(local.snegs, k, null) != null ? [google_compute_region_network_endpoint_group.default[k].id] : null,
