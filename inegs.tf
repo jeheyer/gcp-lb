@@ -4,7 +4,8 @@ locals {
   inegs = { for k, v in var.backends : k => [{
     fqdn       = v.ineg.fqdn
     ip_address = v.ineg.ip_address
-    port       = coalesce(v.port, local.https_port) # default to HTTPS since this is going via Internet
+    port       = coalesce(v.ineg.port, local.https_port) # default to HTTPS since this is going via Internet
+    protocol   = upper(coalesce(v.protocol, coalesce(v.ineg.port, local.https_port) == 80 ? "http" : "https"))
   }] if v.ineg != null }
 }
 

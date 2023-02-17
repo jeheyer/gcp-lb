@@ -13,7 +13,7 @@ locals {
     )
     description     = coalesce(v.description, "Backend Service '${k}'")
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
-    protocol        = lookup(local.snegs, k, null) != null ? null : local.type
+    protocol        = lookup(local.snegs, k, null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.inegs[k]).protocol, null), "https")) : null
     timeout         = lookup(local.snegs, k, null) != null ? null : coalesce(v.timeout, var.backend_timeout, 30)
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
     groups = coalesce(
@@ -25,18 +25,12 @@ locals {
     logging               = local.is_http ? coalesce(v.logging, false) : false
     logging_rate          = local.is_http ? (coalesce(v.logging, false) ? coalesce(v.logging_rate, 1.0) : null) : null
     enable_cdn            = local.is_http ? coalesce(v.enable_cdn, false) : null
-    affinity_type         = v.affinity_type
+    affinity_type         = coalesce(v.affinity_type, "NONE")
     capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.capacity_scaler, 1.0) : null
     max_connections       = local.is_global && local.type == "TCP" ? coalesce(v.max_connections, 32768) : null
     max_utilization       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_utilization, 0.8) : null
     max_rate_per_instance = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_rate_per_instance, 512) : null
   } if lookup(local.backend_buckets, k, null) == null && v.bucket_name == null && v.type != "bucket" }
-  #backend_options = { for k, v in var.backends : k => {
-  #  capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.capacity_scaler, 1.0) : null
-  #  max_connections       = local.is_global && local.type == "TCP" ? coalesce(v.max_connections, 32768) : null
-  #  max_utilization       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_utilization, 0.8) : null
-  #  max_rate_per_instance = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.max_rate_per_instance, 512) : null
-  #} if lookup(local.backend_buckets, k, null) == null }
 }
 
 # Global Backend Service

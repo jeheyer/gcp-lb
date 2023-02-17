@@ -30,12 +30,12 @@ resource "google_compute_region_url_map" "http" {
 
 locals {
   backend_ids = { for k, v in var.backends : k =>
-    coalesce(
+    try(coalesce(
       lookup(google_compute_backend_bucket.default, k, null),
       lookup(google_compute_backend_service.default, k, null),
       lookup(google_compute_region_backend_service.default, k, null),
-  ).id }
-  default_service_id = try(lookup(local.backend_ids, var.default_backend, null), null)
+  ).id, null) }
+  default_service_id = try(lookup(local.backend_ids, coalesce(var.default_backend, keys(var.backends)[0]), null), null)
 }
 
 # Global HTTPS URL MAP

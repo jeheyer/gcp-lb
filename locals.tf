@@ -17,5 +17,5 @@ resource "random_string" "name_prefix" {
   length  = 8
   upper   = false
   special = false
-  numeric = false
+  numeric = true
 }

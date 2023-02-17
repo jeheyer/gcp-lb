@@ -12,8 +12,9 @@ output "ipv6_address" {
 output "backends" {
   value = {
     for k, v in merge(local.backend_services, local.backend_buckets) : k => {
-      type   = v.type
-      region = coalesce(v.region, "global")
+      type     = v.type
+      region   = coalesce(v.region, "global")
+      protocol = v.protocol
     }
   }
 }
