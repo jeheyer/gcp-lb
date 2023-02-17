@@ -30,8 +30,8 @@ resource "google_compute_ssl_certificate" "default" {
   project     = var.project_id
   name        = local.use_ssc ? null : each.key
   name_prefix = local.use_ssc ? local.name_prefix : null
-  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : file("${path.module}/${each.value.private_key}")
-  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : file("${path.module}/${each.value.certificate}")
+  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : file("./${each.value.private_key}")
+  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : file("./${each.value.certificate}")
   lifecycle {
     create_before_destroy = true
   }
@@ -41,8 +41,8 @@ resource "google_compute_region_ssl_certificate" "default" {
   project     = var.project_id
   name        = local.use_ssc ? null : each.key
   name_prefix = local.use_ssc ? local.name_prefix : null
-  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : file("${path.module}/${each.value.private_key}")
-  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : file("${path.module}/${each.value.certificate}")
+  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : file("./${each.value.private_key}")
+  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : file("./${each.value.certificate}")
   lifecycle {
     create_before_destroy = true
   }
