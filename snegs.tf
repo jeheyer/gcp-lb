@@ -13,6 +13,10 @@ locals {
   } if try(coalesce(v.cloud_run_name, v.container_image, v.docker_image, v.container_port, v.psc_target), null) != null }
   */
   snegs = { for k, v in var.backends : k => {
+        ids = [for ig in v.instance_groups : coalesce(
+      ig.id, try("${local.ig_prefix}/${ig.zone}/instanceGroups/${ig.name}", null)
+    )]
+
     #type   = "sneg"
     name   = coalesce(v.snegs.cloud_run_name, v.snegs.app_engine_name, k)
     region = coalesce(v.region, local.region)

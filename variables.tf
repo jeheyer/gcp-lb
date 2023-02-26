@@ -111,6 +111,18 @@ variable "enable_ipv6" {
   type    = bool
   default = false
 }
+variable "ipv4_address" {
+  type = string
+  default = null
+}
+variable "ipv6_address" {
+  type = string
+  default = null
+}
+variable "ip_address" {
+  type = string
+  default = null
+}
 variable "port_range" {
   type    = string
   default = null
@@ -159,23 +171,6 @@ variable "routing_rules" {
   }))
   default = {}
 }
-/*
-variable "frontends" {
-  type = map(object({
-    type                 = optional(string) # We'll try and figure it out automatically
-    ports                = optional(list(number))
-    description          = optional(string)
-    region               = optional(string)
-    default_service_name = optional(string)
-    default_service_id   = optional(string)
-    enable_ipv4          = optional(bool, true)
-    enable_ipv6          = optional(bool, false)
-    http_port            = optional(number, 80)
-    https_port           = optional(number, 443)
-    classic              = optional(bool, false)
-  }))
-  default = {}
-} */
 variable "backends" {
   description = "Map of all backend services & buckets"
   type = map(object({
