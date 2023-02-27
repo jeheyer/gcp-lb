@@ -11,6 +11,8 @@ locals {
   http_lb_scheme     = local.is_internal ? "INTERNAL_MANAGED" : (local.is_classic ? "EXTERNAL" : "EXTERNAL_MANAGED")
   region             = coalesce(var.region, "us-central1")              # Need a region for SNEGs, even if backend is global
   network_project_id = coalesce(var.network_project_id, var.project_id) # needed for Shared VPC scenarios
+  http_port          = 80
+  https_port         = 443
 }
 
 resource "random_string" "name_prefix" {

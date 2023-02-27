@@ -13,7 +13,7 @@ resource "google_compute_ssl_policy" "default" {
   min_tls_version = var.min_tls_version
 }
 
-/* Regional Custom SSL/TLS Policy
+/* Regional Custom SSL/TLS Policy - Still in Beta, will do this later
 resource "google_compute_region_ssl_policy" "default" {
   count           = var.ssl_policy_name == null && local.is_http && local.is_regional ? 1 : 0
   project         = var.project_id
@@ -21,5 +21,4 @@ resource "google_compute_region_ssl_policy" "default" {
   profile         = var.tls_profile
   min_tls_version = var.min_tls_version
   region  = local.region
-}
-*/
+} */

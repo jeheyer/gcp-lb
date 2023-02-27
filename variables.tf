@@ -180,6 +180,7 @@ variable "backends" {
     bucket_name       = optional(string)
     psc_target        = optional(string)
     port              = optional(number)
+    port_name         = optional(string)
     protocol          = optional(string)
     enable_cdn        = optional(bool)
     cdn_cache_mode    = optional(string)

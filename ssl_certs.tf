@@ -2,7 +2,12 @@ locals {
   upload_ssl_certs = var.ssl_certs != null ? true : false
   use_ssc          = local.is_http ? coalesce(var.use_ssc, var.ssl_certs == null && var.ssl_cert_names == null ? true : false) : false
   use_gmc          = local.is_http && local.is_global ? coalesce(var.use_gmc, false) : false
-  certs_to_upload  = local.use_ssc ? { self_signed = {} } : coalesce(var.ssl_certs, {})
+  certs_to_upload = { for k, v in coalesce(var.ssl_certs, {}) : k => {
+    # If cert and key lengths are under 256 bytes, we assume they are the file names
+    certificate = length(v.certificate) < 256 ? file("./${v.certificate}") : v.certificate
+    private_key = length(v.private_key) < 256 ? file("./${v.private_key}") : v.private_key
+    description = v.description #coalesce(each.value.description, "Uploaded via Terraform")
+  } if !local.use_ssc && !local.use_gmc }
 }
 
 # If required, create a private key
@@ -30,8 +35,8 @@ resource "google_compute_ssl_certificate" "default" {
   project     = var.project_id
   name        = local.use_ssc ? null : each.key
   name_prefix = local.use_ssc ? local.name_prefix : null
-  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : file("./${each.value.private_key}")
-  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : file("./${each.value.certificate}")
+  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : each.value.certificate
+  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : each.value.private_key
   lifecycle {
     create_before_destroy = true
   }
@@ -41,8 +46,8 @@ resource "google_compute_region_ssl_certificate" "default" {
   project     = var.project_id
   name        = local.use_ssc ? null : each.key
   name_prefix = local.use_ssc ? local.name_prefix : null
-  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : file("./${each.value.private_key}")
-  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : file("./${each.value.certificate}")
+  certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : each.value.certificate
+  private_key = local.use_ssc ? one(tls_private_key.default).private_key_pem : each.value.private_key
   lifecycle {
     create_before_destroy = true
   }

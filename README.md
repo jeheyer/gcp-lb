@@ -46,7 +46,7 @@
 | address            | IP address to use for the load balancer frontend | `string` | n/a     |
 | default_backend    | Key of the default backend to use                | `string` |         |
 | default_service_id | ID of a pre-existing backend service or bucket   | `string` | n/a     | 
-| default_timeout    | Default timeout for all backends used by this LB | `number` | 30      |
+| backend_timeout    | Default timeout for all backends used by this LB | `number` | 30      |
 
 #### Notes
 

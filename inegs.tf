@@ -1,5 +1,4 @@
 locals {
-  https_port = 443
   # From backends, create a list of objects containing only Internet Network Endpoint Groups
   inegs = { for k, v in var.backends : k => [{
     fqdn       = v.ineg.fqdn
