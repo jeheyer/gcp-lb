@@ -17,11 +17,11 @@ locals {
   new_umigs = flatten([for k, umigs in local.umigs : [for ig in umigs : ig if length(ig.instances) > 0]])
 }
 
-#resource "google_compute_instance_group" "default" {
-#  count     = length(local.new_umigs)
-#  project   = var.project_id
-#  name      = local.new_umigs[count.index].name
-#  network   = "projects/${local.network_project_id}/global/networks/${var.network_name}"
-#  instances = formatlist("${local.ig_prefix}/${local.new_umigs[count.index].zone}/instances/%s", local.new_umigs[count.index].instances)
-#  zone      = local.new_umigs[count.index].zone
-#}
+resource "google_compute_instance_group" "default" {
+  count     = 0 #length(local.new_umigs)
+  project   = var.project_id
+  name      = local.new_umigs[count.index].name
+  network   = "projects/${local.network_project_id}/global/networks/${var.network_name}"
+  instances = formatlist("${local.ig_prefix}/${local.new_umigs[count.index].zone}/instances/%s", local.new_umigs[count.index].instances)
+  zone      = local.new_umigs[count.index].zone
+}
