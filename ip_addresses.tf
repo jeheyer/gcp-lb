@@ -19,14 +19,13 @@ resource "google_compute_global_address" "default" {
 
 # Locals for regional and/or internal LBs
 locals {
-  network_tier       = local.lb_scheme == "EXTERNAL_MANAGED" ? "STANDARD" : null
-  purpose            = local.lb_scheme == "INTERNAL_MANAGED" ? "SHARED_LOADBALANCER_VIP" : null
-  network_name       = coalesce(var.network_name, "default")
-  network            = endswith(local.lb_scheme, "_MANAGED") ? local.network_name : null
-  network_project_id = coalesce(var.network_project_id, var.project_id) # needed for Shared VPC scenarios
-  subnet_prefix      = "projects/${local.network_project_id}/regions"
-  subnet_id          = local.is_internal ? "${local.subnet_prefix}/${var.region}/subnetworks/${var.subnet_name}" : null
-  subnetwork         = local.is_internal ? local.subnet_id : null
+  network_tier  = local.lb_scheme == "EXTERNAL_MANAGED" ? "STANDARD" : null
+  purpose       = local.lb_scheme == "INTERNAL_MANAGED" ? "SHARED_LOADBALANCER_VIP" : null
+  network_name  = coalesce(var.network_name, "default")
+  network       = endswith(local.lb_scheme, "_MANAGED") ? local.network_name : null
+  subnet_prefix = "projects/${local.network_project_id}/regions"
+  subnet_id     = local.is_internal ? "${local.subnet_prefix}/${var.region}/subnetworks/${var.subnet_name}" : null
+  subnetwork    = local.is_internal ? local.subnet_id : null
 }
 
 # Regional static IP

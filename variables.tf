@@ -112,15 +112,15 @@ variable "enable_ipv6" {
   default = false
 }
 variable "ipv4_address" {
-  type = string
+  type    = string
   default = null
 }
 variable "ipv6_address" {
-  type = string
+  type    = string
   default = null
 }
 variable "ip_address" {
-  type = string
+  type    = string
   default = null
 }
 variable "port_range" {
@@ -194,9 +194,10 @@ variable "backends" {
       region = optional(string)
     })))
     instance_groups = optional(list(object({
-      id   = optional(string)
-      name = optional(string)
-      zone = optional(string)
+      id        = optional(string)
+      name      = optional(string)
+      zone      = optional(string)
+      instances = optional(list(string))
     })))
     snegs = optional(list(object({
       region                = optional(string)
