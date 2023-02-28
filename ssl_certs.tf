@@ -2,12 +2,14 @@ locals {
   upload_ssl_certs = var.ssl_certs != null ? true : false
   use_ssc          = local.is_http ? coalesce(var.use_ssc, var.ssl_certs == null && var.ssl_cert_names == null ? true : false) : false
   use_gmc          = local.is_http && local.is_global ? coalesce(var.use_gmc, false) : false
-  certs_to_upload = { for k, v in coalesce(var.ssl_certs, {}) : k => {
-    # If cert and key lengths are under 256 bytes, we assume they are the file names
-    certificate = length(v.certificate) < 256 ? file("./${v.certificate}") : v.certificate
-    private_key = length(v.private_key) < 256 ? file("./${v.private_key}") : v.private_key
-    description = v.description #coalesce(each.value.description, "Uploaded via Terraform")
-  } if !local.use_ssc && !local.use_gmc }
+  certs_to_upload = !local.use_ssc ? {
+    for k, v in coalesce(var.ssl_certs, {}) : k => {
+      # If cert and key lengths are under 256 bytes, we assume they are the file names
+      certificate = length(v.certificate) < 256 ? file("./${v.certificate}") : v.certificate
+      private_key = length(v.private_key) < 256 ? file("./${v.private_key}") : v.private_key
+      description = coalesce(v.description, "Uploaded via Terraform")
+    }
+  } : { self_signed = { description = "Self-Signed certificate created by Terraform; intended for TEMPORARY use only" } }
 }
 
 # If required, create a private key
@@ -33,6 +35,7 @@ resource "tls_self_signed_cert" "default" {
 resource "google_compute_ssl_certificate" "default" {
   for_each    = local.is_global ? local.certs_to_upload : {}
   project     = var.project_id
+  description = each.value.description
   name        = local.use_ssc ? null : each.key
   name_prefix = local.use_ssc ? local.name_prefix : null
   certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : each.value.certificate
@@ -44,6 +47,7 @@ resource "google_compute_ssl_certificate" "default" {
 resource "google_compute_region_ssl_certificate" "default" {
   for_each    = local.is_regional ? local.certs_to_upload : {}
   project     = var.project_id
+  description = each.value.description
   name        = local.use_ssc ? null : each.key
   name_prefix = local.use_ssc ? local.name_prefix : null
   certificate = local.use_ssc ? one(tls_self_signed_cert.default).cert_pem : each.value.certificate

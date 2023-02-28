@@ -44,7 +44,7 @@ resource "google_compute_backend_service" "default" {
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
   session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
-  #security_policy = google_compute_security_policy.checkpoint-cloud-armor-policy.id
+  security_policy       = try(coalesce(each.value.cloudarmor_policy, var.cloudarmor_policy), null)
   dynamic "backend" {
     for_each = each.value.groups
     content {
@@ -78,7 +78,7 @@ resource "google_compute_region_backend_service" "default" {
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
   session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
-  #security_policy = google_compute_security_policy.checkpoint-cloud-armor-policy.id
+  #security_policy = try(coalesce(each.value.cloudarmor_policy, var.cloudarmor_policy), null)
   dynamic "backend" {
     for_each = each.value.groups
     content {

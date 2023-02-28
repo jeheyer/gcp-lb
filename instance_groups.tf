@@ -40,7 +40,7 @@ locals {
 }
 /*
 resource "google_compute_instance_group_named_port" "default" {
-  for_each = [for k, igs in local.named_ports : [ for ig in flatten(igs) : ig.key => ig ] ]
+  for_each = { for k, igs in local.named_ports : [ for ig in flatten(igs) : ig.key => ig ] ]
   group = each.value.ig_id
   name  = each.value.port_name
   port  = each.value.port_number

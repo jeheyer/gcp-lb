@@ -83,6 +83,10 @@ variable "key_bits" {
   type        = number
   default     = 2048
 }
+variable "quic_override" {
+  type    = string
+  default = null
+}
 variable "default_service_id" {
   type    = string
   default = null
@@ -150,9 +154,14 @@ variable "global_access" {
   default = false
 }
 variable "backend_timeout" {
-  description = "Default timeout for all backends in seconds (can be overridden)"
+  description = "Default timeout for all backends in seconds (can be overridden on individual backends)"
   type        = number
   default     = 30
+}
+variable "cloudarmor_policy" {
+  description = "Cloud Armor Policy name to apply to all backends (can be overridden on individual backends)"
+  type        = string
+  default     = null
 }
 variable "default_backend" {
   description = "Default backend"

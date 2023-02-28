@@ -1,3 +1,7 @@
+locals {
+  quic_override = coalesce(var.quic_override, "NONE")
+  ssl_policy    = local.is_global ? coalesce(var.ssl_policy_name, one(google_compute_ssl_policy.default).id) : null
+}
 
 # Global TCP Proxy
 resource "google_compute_target_tcp_proxy" "default" {
@@ -33,7 +37,8 @@ resource "google_compute_target_https_proxy" "default" {
     var.ssl_cert_names,
     [for k, v in local.certs_to_upload : google_compute_ssl_certificate.default[k].id]
   )
-  ssl_policy = coalesce(var.ssl_policy_name, one(google_compute_ssl_policy.default).id)
+  ssl_policy    = local.ssl_policy
+  quic_override = local.quic_override
 }
 
 # Regional HTTPS Target Proxy
@@ -45,6 +50,7 @@ resource "google_compute_region_target_https_proxy" "default" {
   ssl_certificates = local.use_ssc ? [google_compute_region_ssl_certificate.default["self_signed"].name] : [
     for k, v in local.certs_to_upload : google_compute_region_ssl_certificate.default[k].id
   ]
+  #ssl_policy       = local.ssl_policy
+  #quic_override = local.quic_override
   region = local.region
-  #ssl_policy       = coalesce(var.ssl_policy_name, one(google_compute_ssl_policy.default).id)  # in beta
 }
