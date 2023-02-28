@@ -153,6 +153,11 @@ variable "global_access" {
   type    = bool
   default = false
 }
+variable "backend_logging" {
+  description = "Log requests to all backends (can be overridden on individual backends)"
+  type        = bool
+  default     = null
+}
 variable "backend_timeout" {
   description = "Default timeout for all backends in seconds (can be overridden on individual backends)"
   type        = number
@@ -183,6 +188,7 @@ variable "routing_rules" {
 variable "backends" {
   description = "Map of all backend services & buckets"
   type = map(object({
+    enable            = optional(bool, true)
     type              = optional(string) # We'll try and figure it out automatically
     description       = optional(string)
     region            = optional(string)

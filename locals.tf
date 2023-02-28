@@ -13,6 +13,16 @@ locals {
   network_project_id = coalesce(var.network_project_id, var.project_id) # needed for Shared VPC scenarios
   http_port          = 80
   https_port         = 443
+  backends = { for k, v in var.backends : k => {
+    # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
+    type = coalesce(
+      lookup(local.instance_groups, k, null) != null ? "instance_groups" : null,
+      lookup(local.snegs, k, null) != null ? "sneg" : null,
+      lookup(local.inegs, k, null) != null ? "ineg" : null,
+      lookup(local.backend_buckets, k, null) != null ? "bucket" : null,
+      "unknown" # this should never happen
+    )
+  } if v.enable != false }
 }
 
 resource "random_string" "name_prefix" {

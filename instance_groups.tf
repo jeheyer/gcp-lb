@@ -8,7 +8,7 @@ locals {
     backend   = k
   } if ig.id == null] }
   instance_groups = { for k, v in var.backends : k => {
-    port_name   = coalesce(v.port_name, v.port == 80 ? "http" : "${k}-${v.port}")
+    port_name   = coalesce(v.port_name, v.port, 80) == 80 ? "http" : "${k}-${coalesce(v.port, 80)}"
     port_number = coalesce(v.port, local.http_port)
     ids = concat(
       flatten([for ig in v.instance_groups : ig.id if ig.id != null]),

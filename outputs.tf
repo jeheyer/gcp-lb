@@ -13,9 +13,9 @@ output "backends" {
   value = {
     for k, v in merge(local.backend_services, local.backend_buckets) : k => {
       type     = v.type
-      region   = coalesce(v.region, "global")
-      protocol = v.protocol
-      groups   = v.groups
+      region   = lookup(v, "region", "global")
+      protocol = lookup(v, "protocol", null)
+      groups   = lookup(v, "groups", [])
     }
   }
 }

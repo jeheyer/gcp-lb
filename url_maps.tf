@@ -65,6 +65,7 @@ resource "google_compute_url_map" "https" {
       }
     }
   }
+  depends_on = [google_compute_backend_service.default, google_compute_backend_bucket.default]
 }
 # Regional HTTPS URL MAP
 resource "google_compute_region_url_map" "https" {
@@ -93,5 +94,6 @@ resource "google_compute_region_url_map" "https" {
       }
     }
   }
-  region = local.region
+  depends_on = [google_compute_region_backend_service.default]
+  region     = local.region
 }

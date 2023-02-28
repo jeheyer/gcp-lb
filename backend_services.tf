@@ -20,11 +20,12 @@ locals {
       lookup(local.instance_groups, k, null) != null ? local.instance_groups[k].ids : null,
       lookup(local.snegs, k, null) != null ? [google_compute_region_network_endpoint_group.default[k].id] : null,
       local.is_global ? (lookup(local.inegs, k, null) != null ? [google_compute_global_network_endpoint_group.default[k].id] : null) : null,
-      [] # This will result in 'no backend configured'
+      [] # This will result in 'no backend configured' which is easier to troubleshoot than an ugly error
     )
-    logging               = local.is_http ? coalesce(v.logging, false) : false
+    logging               = local.is_http ? coalesce(v.logging, var.backend_logging, false) : false
     logging_rate          = local.is_http ? (coalesce(v.logging, false) ? coalesce(v.logging_rate, 1.0) : null) : null
     enable_cdn            = local.is_http ? coalesce(v.enable_cdn, false) : null
+    security_policy       = local.is_http ? try(coalesce(v.cloudarmor_policy, var.cloudarmor_policy), null) : null
     affinity_type         = coalesce(v.affinity_type, "NONE")
     capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? coalesce(v.capacity_scaler, 1.0) : null
     max_connections       = local.is_global && local.type == "TCP" ? coalesce(v.max_connections, 32768) : null
@@ -44,7 +45,7 @@ resource "google_compute_backend_service" "default" {
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
   session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
-  security_policy       = try(coalesce(each.value.cloudarmor_policy, var.cloudarmor_policy), null)
+  security_policy       = each.value.security_policy
   dynamic "backend" {
     for_each = each.value.groups
     content {
@@ -68,7 +69,7 @@ resource "google_compute_backend_service" "default" {
 
 # Regional Backend Service
 resource "google_compute_region_backend_service" "default" {
-  for_each              = local.is_global ? {} : local.backend_services
+  for_each              = local.is_regional ? local.backend_services : {}
   project               = var.project_id
   name                  = "${local.name_prefix}-${each.key}"
   load_balancing_scheme = local.lb_scheme
@@ -78,7 +79,7 @@ resource "google_compute_region_backend_service" "default" {
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
   session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
-  #security_policy = try(coalesce(each.value.cloudarmor_policy, var.cloudarmor_policy), null)
+  #security_policy = each.value.security_policy
   dynamic "backend" {
     for_each = each.value.groups
     content {
