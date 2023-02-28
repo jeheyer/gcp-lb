@@ -69,13 +69,16 @@
 
 ### Inputs relevant to all External Load Balancers
 
-| Name        | Description                                                       | Type   | Default |
-|-------------|-------------------------------------------------------------------|--------|---------|
-| enable_ipv4 | Create an IPv4 address for the Listener Address (forwarding rule) | `bool` | true    |
-| enable_ipv6 | Create an IPv6 address for the Listener Address (forwarding rule) | `bool` | false   |
+| Name         | Description                                               | Type     | Default |
+|--------------|-----------------------------------------------------------|----------|---------|
+| enable_ipv4  | Create an IPv4 address for the forwarding rule            | `bool`   | true    |
+| enable_ipv6  | Create an IPv6 address for the forwarding rule            | `bool`   | false   |
+| ipv4_address | Existing IPv4 Address to use for the forwarding rule      | `string` | n/a     |
+| ipv6_address | Existing IPv6 Address to use for the fowarding rule       | `string` | n/a     |
 
 #### Notes
 
+- If IP addresses are not specified, new static IPs will be created and used
 - `enable_ipv6` is only supported on external global Load Balancers
 
 ### Inputs relevant to all Internal Load Balancers
