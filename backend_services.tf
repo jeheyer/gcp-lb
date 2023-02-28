@@ -43,7 +43,7 @@ resource "google_compute_backend_service" "default" {
   load_balancing_scheme = local.lb_scheme
   locality_lb_policy    = local.locality_lb_policy
   protocol              = each.value.protocol
-  port_name = each.value.port_name
+  port_name             = each.value.port_name
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
   session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
@@ -78,6 +78,7 @@ resource "google_compute_region_backend_service" "default" {
   locality_lb_policy    = local.locality_lb_policy
   description           = each.value.description
   protocol              = each.value.protocol
+  port_name             = each.value.port_name
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
   session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
