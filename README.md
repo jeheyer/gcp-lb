@@ -12,6 +12,8 @@
 - [google_compute_global_forwarding_rule](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_forwarding_rule)
 - [google_compute_global_network_endpoint](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_network_endpoint)
 - [google_compute_global_network_endpoint_group](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_network_endpoint_group)
+- [google_compute_instance_group](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_instance_group)
+- [google_compute_instance_group_named_port](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_instance_group_named_port)
 - [google_compute_managed_ssl_certificate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_managed_ssl_certificate)
 - [google_compute_region_backend_service](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service)
 - [google_compute_region_network_endpoint_group](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_network_endpoint_group)
@@ -47,6 +49,7 @@
 | default_backend    | Key of the default backend to use                | `string` |         |
 | default_service_id | ID of a pre-existing backend service or bucket   | `string` | n/a     | 
 | backend_timeout    | Default timeout for all backends used by this LB | `number` | 30      |
+| cloudarmor_policy  | CloudArmor Policy for all backends               | `string` | n/a |
 
 #### Notes
 
@@ -107,8 +110,8 @@
 
 | Name            | Description                                              | Type          | Default |
 |-----------------|----------------------------------------------------------|---------------|---------|
-| routing_rules   | Routes to route hosts/paths to different backends        | `map(object)` | null    | 
 | classic         | Use Classic global HTTP(S) LB (not Envoy-based)          | `bool`        | false   | 
+| routing_rules   | Routes to route hosts/paths to different backends        | `map(object)` | null    | 
 | http_port       | Listener port for HTTP.  To disable HTTP, set to `null`  | `number`      | 80      |
 | https_port      | Listener port for HTTPS. To disable HTTPS, set to `null` | `number`      | 443     |
 | ssl_policy_name | Name of a pre-existing SSL Policy to use                 | `string`      | n/a     |
@@ -136,10 +139,11 @@
 
 | Name           | Description                                 | Type     | Default |
 |----------------|---------------------------------------------|----------|---------|
-| type           | Type of backend (sneg, ineg)                | `string` | igs     |
 | description    | Description for this Backend                | `string` | n/a     |
 | timeout        | Timeout between LB and backend (in seconds) | `number` | 30      |
 | port           | TCP Port of the Backend                     | `number` | 443     |
+| port_name      | Name of the HTTP port        | `string` | http    |
+| cloudarmor_policy | Name of the CloudArmor policy to apply | `string` | n/a |
 | protocol       | Protocol of the Backend                     | `string` | TCP     |
 | bucket_name    | Name of the GCS bucket                      | `string` | n/a     |
 | fqdn           | FQDN Hostname (Internet NEGs only)          | `string` | n/a     |
@@ -147,7 +151,9 @@
 
 #### Notes
 
+- Timeout behavior depends on LB type.  See notes above.
 - Backend buckets can also be used with `type = "bucket"`.  If `bucket_name` is not provided, bucket name is assumed to be the key 
+- `port_name` and `cloudamor_policy` are only supported on HTTP(S) LBs
 - `fqdn` and `ip_address` are only supported on Classic HTTP(S) LB currently
 
 #### backend attributes for HTTP(S) LBs

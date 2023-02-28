@@ -153,6 +153,7 @@ variable "global_access" {
   type    = bool
   default = false
 }
+// Begin backend settings
 variable "backend_logging" {
   description = "Log requests to all backends (can be overridden on individual backends)"
   type        = bool
@@ -169,10 +170,11 @@ variable "cloudarmor_policy" {
   default     = null
 }
 variable "default_backend" {
-  description = "Default backend"
+  description = "Default backend key to send traffic to. If not provided, first backend key will be used"
   type        = string
   default     = null
 }
+// End Backend Settings
 variable "routing_rules" {
   description = "Route rules to send different hostnames/paths to different backends"
   type = map(object({
@@ -209,6 +211,7 @@ variable "backends" {
       name   = optional(string)
       region = optional(string)
     })))
+    groups = optional(list(string))
     instance_groups = optional(list(object({
       id        = optional(string)
       name      = optional(string)

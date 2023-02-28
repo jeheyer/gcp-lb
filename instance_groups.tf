@@ -30,18 +30,16 @@ resource "google_compute_instance_group" "default" {
 
 # Create Named port for HTTP(S) load balancers
 locals {
-  named_ports = { for k, igs in local.instance_groups : k => [for ig_id in igs.ids : {
-    key         = "${k}-${element(split("/", ig_id), 5)}-${igs.port_number}"
-    ig_id       = ig_id
-    port_name   = igs.port_name
-    port_number = igs.port_number
-    #backend = k
-  } if igs.port_number != 80] if local.is_http }
+  named_ports = flatten([for k, v in local.instance_groups : [for group in v.ids : {
+    key   = "${k}-${element(split("/", group), 5)}-${v.port_name}-${v.port_number}"
+    group = group
+    name  = v.port_name
+    port  = v.port_number
+  } if v.port_number != 80] if local.is_http])
 }
-/*
 resource "google_compute_instance_group_named_port" "default" {
-  for_each = { for k, igs in local.named_ports : [ for ig in flatten(igs) : ig.key => ig ] ]
-  group = each.value.ig_id
-  name  = each.value.port_name
-  port  = each.value.port_number
-} */
+  for_each = { for named_port in local.named_ports : "${named_port.key}" => named_port }
+  group    = each.value.group
+  name     = each.value.name
+  port     = each.value.port
+} 
