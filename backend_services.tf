@@ -52,7 +52,7 @@ resource "google_compute_backend_service" "default" {
   dynamic "backend" {
     for_each = each.value.groups
     content {
-      group                 = "https://www.googleapis.com/compute/v1/${backend.value}"
+      group                 = backend.value
       capacity_scaler       = local.backend_services[each.key].capacity_scaler
       balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
       max_rate_per_instance = each.value.type == "instance_groups" ? local.backend_services[each.key].max_rate_per_instance : null
@@ -87,7 +87,7 @@ resource "google_compute_region_backend_service" "default" {
   dynamic "backend" {
     for_each = each.value.groups
     content {
-      group                 = "https://www.googleapis.com/compute/v1/${backend.value}"
+      group                 = backend.value
       capacity_scaler       = local.backend_services[each.key].capacity_scaler
       balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
       max_rate_per_instance = each.value.type == "instance_groups" ? local.backend_services[each.key].max_rate_per_instance : null
