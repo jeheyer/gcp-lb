@@ -6,6 +6,7 @@ locals {
   backend_services = { for k, v in var.backends : k => {
     # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
     type = coalesce(
+      length(coalesce(v.groups, [])) > 0 ? "instance_groups" : null, # temp until SNEG support fully works
       lookup(local.instance_groups, k, null) != null ? "instance_groups" : null,
       lookup(local.snegs, k, null) != null ? "sneg" : null,
       lookup(local.inegs, k, null) != null ? "ineg" : null,
@@ -17,7 +18,7 @@ locals {
     port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${k}-${coalesce(v.port, 80)}") : null
     timeout         = lookup(local.snegs, k, null) != null ? null : coalesce(v.timeout, var.backend_timeout, 30)
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
-    groups = coalesce(
+    groups = coalesce(v.groups,
       lookup(local.instance_groups, k, null) != null ? local.instance_groups[k].ids : null,
       lookup(local.snegs, k, null) != null ? [google_compute_region_network_endpoint_group.default[k].id] : null,
       local.is_global ? (lookup(local.inegs, k, null) != null ? [google_compute_global_network_endpoint_group.default[k].id] : null) : null,
