@@ -95,7 +95,7 @@ resource "google_compute_forwarding_rule" "https" {
   ip_address            = google_compute_address.default["ipv4"].id
   load_balancing_scheme = local.lb_scheme
   region                = local.region
-  network               = endswith(local.lb_scheme, "_MANAGED") ? local.network_name : null
-  subnetwork            = startswith(local.lb_scheme, "INTERNAL") ? local.subnet_id : null
-  network_tier          = local.lb_scheme == "EXTERNAL_MANAGED" ? "STANDARD" : null
+  network               = local.network
+  subnetwork            = local.subnetwork
+  network_tier          = local.network_tier
 }

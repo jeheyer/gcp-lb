@@ -14,7 +14,7 @@ locals {
     description     = coalesce(v.description, "Backend Service '${k}'")
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
     protocol        = lookup(local.snegs, k, null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.inegs[k]).protocol, null), "https")) : null
-    port_name       = local.is_http ? coalesce(v.port_name, v.port, 80) == 80 ? "http" : "${k}-${coalesce(v.port, 80)}" : null
+    port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${k}-${coalesce(v.port, 80)}") : null
     timeout         = lookup(local.snegs, k, null) != null ? null : coalesce(v.timeout, var.backend_timeout, 30)
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
     groups = coalesce(
@@ -46,7 +46,7 @@ resource "google_compute_backend_service" "default" {
   port_name             = each.value.port_name
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
-  session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
+  session_affinity      = each.value.type == "instance_groups" ? each.value.affinity_type : null
   security_policy       = each.value.security_policy
   dynamic "backend" {
     for_each = each.value.groups
@@ -81,7 +81,7 @@ resource "google_compute_region_backend_service" "default" {
   port_name             = each.value.port_name
   timeout_sec           = each.value.timeout
   health_checks         = each.value.type == "instance_groups" ? local.backend_services[each.key].healthcheck_ids : null
-  session_affinity      = each.value.type == "instance_groups" ? coalesce(each.value.affinity_type, "NONE") : null
+  session_affinity      = each.value.type == "instance_groups" ? each.value.affinity_type : null
   #security_policy = each.value.security_policy
   dynamic "backend" {
     for_each = each.value.groups

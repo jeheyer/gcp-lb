@@ -14,7 +14,7 @@ locals {
   */
   snegs = { for k, v in var.backends : k => {
     ids = [for ig in v.instance_groups : coalesce(
-      ig.id, try("${local.ig_prefix}/${ig.zone}/instanceGroups/${ig.name}", null)
+      ig.id, try("${local.zones_prefix}/${ig.zone}/instanceGroups/${ig.name}", null)
     )]
 
     #type   = "sneg"

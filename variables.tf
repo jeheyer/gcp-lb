@@ -132,10 +132,12 @@ variable "port_range" {
   default = null
 }
 variable "ports" {
+  description = "List of Ports Accept traffic on all ports (Network LBs only)"
   type    = list(number)
   default = null
 }
 variable "all_ports" {
+  description = "Accept traffic on all ports (Network LBs only)"
   type    = bool
   default = false
 }
@@ -206,13 +208,20 @@ variable "backends" {
     logging_rate      = optional(number)
     affinity_type     = optional(string)
     cloudarmor_policy = optional(string)
+    healthcheck_names = optional(list(string))
     healthchecks = optional(list(object({
       id     = optional(string)
       name   = optional(string)
       region = optional(string)
     })))
-    groups = optional(list(string))
+    groups = optional(list(string))   # List of Instance Groups IDs
     instance_groups = optional(list(object({
+      id        = optional(string)
+      name      = optional(string)
+      zone      = optional(string)
+      instances = optional(list(string))
+    })))
+    umigs = optional(list(object({
       id        = optional(string)
       name      = optional(string)
       zone      = optional(string)

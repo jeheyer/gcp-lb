@@ -12,26 +12,25 @@ locals {
   } : { self_signed = { description = "Self-Signed certificate created by Terraform; intended for TEMPORARY use only" } }
 }
 
-# If required, create a private key
+# For self-signed, create a private key
 resource "tls_private_key" "default" {
   count     = local.is_http && local.use_ssc ? 1 : 0
   algorithm = var.key_algorithm
   rsa_bits  = var.key_bits
 }
-
-# If required, generate a self-signed cert off the private key
+# Then generate a self-signed cert off that private key
 resource "tls_self_signed_cert" "default" {
   count           = local.is_http && local.use_ssc ? 1 : 0
   private_key_pem = one(tls_private_key.default).private_key_pem
   subject {
-    common_name  = var.domains != null ? var.domains[0] : "localhost.localdoamin"
+    common_name  = var.domains != null ? var.domains[0] : "localhost.localdomain"
     organization = "Honest Achmed's Used Cars and Certificates"
   }
   validity_period_hours = 7 * 24
   allowed_uses          = ["key_encipherment", "digital_signature", "server_auth"]
 }
 
-# Upload SSL Certs
+# Upload Global SSL Certs
 resource "google_compute_ssl_certificate" "default" {
   for_each    = local.is_global ? local.certs_to_upload : {}
   project     = var.project_id
@@ -44,6 +43,8 @@ resource "google_compute_ssl_certificate" "default" {
     create_before_destroy = true
   }
 }
+
+# Upload Regional SSL Certs
 resource "google_compute_region_ssl_certificate" "default" {
   for_each    = local.is_regional ? local.certs_to_upload : {}
   project     = var.project_id
