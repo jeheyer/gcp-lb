@@ -9,7 +9,7 @@ locals {
   is_internal        = var.subnet_name != null ? true : false
   lb_scheme          = local.is_http ? local.http_lb_scheme : (local.is_internal ? "INTERNAL" : "EXTERNAL")
   http_lb_scheme     = local.is_internal ? "INTERNAL_MANAGED" : (local.is_classic ? "EXTERNAL" : "EXTERNAL_MANAGED")
-  region             = coalesce(var.region, "us-central1") # Need a region for SNEGs, even if backend is global
+  region             = coalesce(var.region, "us-central1") # SNEGs need a region, even if backend is global
   http_port          = 80
   https_port         = 443
   network_tier       = local.lb_scheme == "EXTERNAL_MANAGED" ? "STANDARD" : null
@@ -24,10 +24,11 @@ locals {
   backend_types = {
     instanceGroups = "instance_groups"
   }
+  # Do a quick walk over the backends to try and guess which type each is.  This will help error checking later.
   backends = { for k, backend in var.backends : k => {
     # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
     #type = coalesce(length(coalesce(backend.groups, [])) > 0 ?
-      #  [ for group in coalesce(backend.groups, []) : lookup(local.backend_types, element(split("/", group), 4), null) ]
+    #  [ for group in coalesce(backend.groups, []) : lookup(local.backend_types, element(split("/", group), 4), null) ]
     type = coalesce(backend.type,
       length(coalesce(lookup(backend, "migs", null), [])) > 0 ? "instance_groups" : null,
       length(coalesce(lookup(backend, "umigs", null), [])) > 0 ? "instance_groups" : null,

@@ -133,13 +133,13 @@ variable "port_range" {
 }
 variable "ports" {
   description = "List of Ports Accept traffic on all ports (Network LBs only)"
-  type    = list(number)
-  default = null
+  type        = list(number)
+  default     = null
 }
 variable "all_ports" {
   description = "Accept traffic on all ports (Network LBs only)"
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
 }
 variable "http_port" {
   description = "HTTP port for LB Frontend"
@@ -214,7 +214,7 @@ variable "backends" {
       name   = optional(string)
       region = optional(string)
     })))
-    groups = optional(list(string))   # List of Instance Groups IDs
+    groups = optional(list(string)) # List of Instance Groups IDs
     instance_groups = optional(list(object({
       id        = optional(string)
       name      = optional(string)
