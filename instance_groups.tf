@@ -1,28 +1,26 @@
 locals {
   zones_prefix = "projects/${var.project_id}/zones"
   umigs_with_ids = { for k, backend in var.backends : k => [for umig in coalesce(backend.umigs, []) : {
+    # UMIG id was provided; we can determine name and zone by parsing it
     id   = umig.id
     zone = element(split("/", umig.id), 3)
     name = element(split("/", umig.id), 5)
   } if lookup(umig, "id", null) != null] }
   umigs_without_ids = { for k, backend in var.backends : k => [for umig in coalesce(backend.umigs, []) : {
+    # UMIG doesn't have the ID, so we'll figure it out using name and zone
     name      = lookup(umig, "name", null)
     zone      = umig.zone
     id        = "${local.zones_prefix}/${umig.zone}/instanceGroups/${umig.name}"
     instances = coalesce(lookup(umig, "instances", null), [])
-    #backend   = k
+    backend   = k
   } if lookup(umig, "id", null) == null] }
-  #   { for k, backend in var.backends : k => [for umig in local.umigs[k] : umig.id] }
-
-  new_umigs = [] #flatten([for k, umigs in local.umigs_without_ids : [for umig in coalesce(umigs, []) : merge(umigs_without_ids, {
-  #  key = "${umig.backend}-${umig.zone}-${umig.name}"
-  #id  = coalesce(umig.id, "${local.zones_prefix}/${umig.zone}/instanceGroups/${umig.name}")
-  #}) if length(umig.instances) > 0]])
+  new_umigs = flatten([for k, umigs in local.umigs_without_ids : [for umig in coalesce(umigs, []) : merge(umig, {
+    key = "${umig.zone}-${umig.name}"
+  }) if length(umig.instances) > 0]])
   umig_ids = { for k, backend in var.backends : k => concat(
     [for umig in local.umigs_with_ids[k] : umig.id],
     [for umig in local.umigs_without_ids[k] : umig.id],
   ) }
-
   instance_groups = { for k, backend in var.backends : k => {
     port_name   = coalesce(backend.port_name, backend.port, 80) == 80 ? "http" : "${k}-${coalesce(backend.port, 80)}"
     port_number = coalesce(backend.port, local.http_port)
@@ -40,6 +38,7 @@ locals {
   #new_umigs = flatten([for k, umigs in local.umigs : [for ig in umigs : ig if length(ig.instances) > 0]])
 }
 
+# Create new UMIGs if required
 resource "google_compute_instance_group" "default" {
   for_each  = { for umig in local.new_umigs : "${umig.key}" => umig }
   project   = var.project_id

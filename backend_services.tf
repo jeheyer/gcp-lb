@@ -22,9 +22,9 @@ locals {
       lookup(local.instance_groups, k, null) != null ? local.instance_groups[k].ids : null,
       lookup(local.snegs, k, null) != null ? [google_compute_region_network_endpoint_group.default[k].id] : null,
       local.is_global ? (lookup(local.inegs, k, null) != null ? [google_compute_global_network_endpoint_group.default[k].id] : null) : null,
-      [] # This will result in 'no backend configured' which is easier to troubleshoot than an ugly error
+      [] # This will result in 'has no backends configured' which is easier to troubleshoot than an ugly error
     )
-    logging               = local.is_http ? coalesce(v.logging, var.backend_logging, false) : false
+    logging               = coalesce(v.logging, var.backend_logging, false)
     logging_rate          = local.is_http ? (coalesce(v.logging, false) ? coalesce(v.logging_rate, 1.0) : null) : null
     enable_cdn            = local.is_http ? coalesce(v.enable_cdn, false) : null
     security_policy       = local.is_http ? try(coalesce(v.cloudarmor_policy, var.cloudarmor_policy), null) : null
