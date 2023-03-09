@@ -58,8 +58,10 @@ locals {
   }] if local.is_http])
 }
 resource "google_compute_instance_group_named_port" "default" {
-  for_each = { for named_port in local.named_ports : "${named_port.key}" => named_port }
-  group    = each.value.group
-  name     = each.value.name
-  port     = each.value.port
-} 
+  for_each   = { for named_port in local.named_ports : "${named_port.key}" => named_port }
+  project    = var.project_id
+  group      = each.value.group
+  name       = each.value.name
+  port       = each.value.port
+  depends_on = [google_compute_instance_group.default]
+}

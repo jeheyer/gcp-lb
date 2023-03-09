@@ -177,6 +177,22 @@ variable "default_backend" {
   default     = null
 }
 // End Backend Settings
+
+variable "psc" {
+  description = "Parameters to publish Internal forwarding rule using PSC"
+  type = object({
+    service_name                = optional(string)
+    description                 = optional(string)
+    nat_subnet_ids              = optional(list(string))
+    nat_subnet_names            = optional(list(string))
+    use_proxy_protocol          = optional(bool)
+    auto_accept_all_connections = optional(bool)
+    accept_project_ids          = optional(list(string))
+    reject_project_ids          = optional(list(string))
+    connection_limit            = optional(number)
+  })
+  default = {}
+}
 variable "routing_rules" {
   description = "Route rules to send different hostnames/paths to different backends"
   type = map(object({

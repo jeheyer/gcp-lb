@@ -22,6 +22,7 @@
 - [google_compute_region_target_http_proxy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_target_http_proxy)
 - [google_compute_region_target_https_proxy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_target_https_proxy)
 - [google_compute_region_url_map](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_url_map)
+- [google_compute_service_attachment](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_service_attachment)
 - [google_compute_ssl_certificate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_ssl_certificate)
 - [google_compute_ssl_policy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_ssl_policy)
 - [google_compute_target_http_proxy](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_target_http_proxy)
@@ -283,5 +284,16 @@ routing_rules = {
   cdn = {
     hosts   = ["cdn.newdomain.com"]
   }
+}
+```
+
+#### Publish Load Balancer via Private Service Connect
+
+```
+psc = {
+  service_name       = "my-service"
+  nat_subnet_names   = ["psc-subnet-1"]
+  accept_project_ids = ["consumer-project-1", "consumer-project-2"]
+  connection_limit   = 1024 
 }
 ```

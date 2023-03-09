@@ -99,3 +99,39 @@ resource "google_compute_forwarding_rule" "https" {
   subnetwork            = local.subnetwork
   network_tier          = local.network_tier
 }
+
+# Prep values for PSC
+locals {
+  psc = var.psc == null ? null : {
+    service_name = coalesce(var.psc.service_name, "${local.name_prefix}-psc")
+    nat_subnet_ids = coalesce(
+      var.psc.nat_subnet_ids,
+      [for sn in var.psc.nat_subnet_names : "${local.subnet_prefix}/${var.region}/subnetworks/${sn}"]
+    )
+    use_proxy_protocol          = coalesce(var.psc.use_proxy_protocol, false)
+    auto_accept_all_connections = coalesce(var.psc.auto_accept_all_connections, false)
+    accept_project_ids          = coalesce(var.psc.accept_project_ids, [])
+    connection_limit            = coalesce(var.psc.connection_limit, 10)
+  }
+}
+
+# Private Service Connect Publishing
+resource "google_compute_service_attachment" "default" {
+  count                 = local.psc != null ? 1 : 0
+  project               = var.project_id
+  name                  = local.psc.service_name
+  region                = local.region
+  description           = coalesce(var.psc.description, "PSC Publish for '${local.psc.service_name}'")
+  enable_proxy_protocol = local.psc.use_proxy_protocol
+  nat_subnets           = local.psc.nat_subnet_ids
+  target_service        = one(google_compute_forwarding_rule.default).id
+  connection_preference = local.psc.auto_accept_all_connections ? "ACCEPT_AUTOMATIC" : "ACCEPT_MANUAL"
+  dynamic "consumer_accept_lists" {
+    for_each = local.psc.accept_project_ids
+    content {
+      project_id_or_num = consumer_accept_lists.value
+      connection_limit  = local.psc.connection_limit
+    }
+  }
+}
+
