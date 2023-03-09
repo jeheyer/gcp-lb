@@ -27,3 +27,4 @@ output "is_classic" { value = local.is_classic }
 output "is_internal" { value = local.is_internal }
 output "is_http" { value = local.is_http }
 output "lb_scheme" { value = local.lb_scheme }
+output "psc" { value = local.psc }
