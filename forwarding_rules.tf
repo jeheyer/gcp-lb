@@ -106,7 +106,7 @@ locals {
     service_name = coalesce(var.psc.service_name, "${local.name_prefix}-psc")
     nat_subnet_ids = coalesce(
       var.psc.nat_subnet_ids,
-      [for sn in var.psc.nat_subnet_names : "${local.subnet_prefix}/${var.region}/subnetworks/${sn}"]
+      [for sn in coalesce(var.psc.nat_subnet_names, []) : "${local.subnet_prefix}/${var.region}/subnetworks/${sn}"]
     )
     use_proxy_protocol          = coalesce(var.psc.use_proxy_protocol, false)
     auto_accept_all_connections = coalesce(var.psc.auto_accept_all_connections, false)

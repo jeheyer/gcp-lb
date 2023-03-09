@@ -191,7 +191,7 @@ variable "psc" {
     reject_project_ids          = optional(list(string))
     connection_limit            = optional(number)
   })
-  default = {}
+  default = null
 }
 variable "routing_rules" {
   description = "Route rules to send different hostnames/paths to different backends"
